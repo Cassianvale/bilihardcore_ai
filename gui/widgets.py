@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import webbrowser
-from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
+from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                              QPushButton, QComboBox, QLineEdit, QTextEdit, 
                              QFrame, QStackedWidget, QMessageBox, QGroupBox, QFormLayout)
-from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QTextCursor
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QTextCursor
 from config.config import (load_api_key, save_api_key, load_model_config, 
                           save_model_config)
 
@@ -92,11 +92,11 @@ class LogWidget(QWidget):
 class StatusWidget(QWidget):
     """状态显示组件"""
     
-    login_clicked = pyqtSignal()
-    logout_clicked = pyqtSignal()
-    switch_account_clicked = pyqtSignal()
-    start_quiz_clicked = pyqtSignal()
-    stop_quiz_clicked = pyqtSignal()
+    login_clicked = Signal()
+    logout_clicked = Signal()
+    switch_account_clicked = Signal()
+    start_quiz_clicked = Signal()
+    stop_quiz_clicked = Signal()
     
     def __init__(self, parent=None):
         super().__init__(parent)

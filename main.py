@@ -14,7 +14,7 @@ def main():
         from gui.main_window import main as _main
         _main()
     except ImportError as e:
-        error_msg = f"错误: 无法导入GUI模块: {e}\n请确保已安装必要的依赖: pip install PyQt6"
+        error_msg = f"错误: 无法导入GUI模块: {e}\n请确保已安装必要的依赖: pip install PySide6"
         print(error_msg)
         
         # 尝试创建错误日志
@@ -30,11 +30,11 @@ def main():
         
         # 尝试显示图形化错误消息
         try:
-            from PyQt6.QtWidgets import QApplication, QMessageBox
+            from PySide6.QtWidgets import QApplication, QMessageBox
             app = QApplication(sys.argv)
             QMessageBox.critical(None, "启动错误", error_msg)
         except:
-            pass  # 如果PyQt6也无法导入，只显示控制台错误
+            pass  # 如果PySide6也无法导入，只显示控制台错误
         
         sys.exit(1)
     except Exception as e:

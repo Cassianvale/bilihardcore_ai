@@ -6,7 +6,7 @@
 统一管理AI模型的配置、验证和切换
 """
 
-from PyQt6.QtCore import QObject, pyqtSignal
+from PySide6.QtCore import QObject, Signal
 from config.config import (load_api_key, save_api_key, load_model_config, 
                           save_model_config)
 
@@ -14,7 +14,7 @@ from config.config import (load_api_key, save_api_key, load_model_config,
 class ModelManager(QObject):
     """模型管理器"""
     
-    model_changed = pyqtSignal(str)  # 模型切换信号
+    model_changed = Signal(str)  # 模型切换信号
     
     AVAILABLE_MODELS = {
         'deepseek': {

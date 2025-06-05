@@ -3,7 +3,7 @@
 """样式预览脚本 - 用于展示GUI样式优化效果"""
 
 import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QVBoxLayout
+from PySide6.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QVBoxLayout
 from gui.widgets import SettingsWidget, LogWidget, StatusWidget, ControlWidget, AboutWidget
 from gui.style import STYLE_SHEET
 

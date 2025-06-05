@@ -4,6 +4,6 @@ idna==3.10
 qrcode==8.1
 requests==2.32.3
 urllib3==2.3.0
-PyQt6==6.8.1
-pillow
+PySide6==6.9.0
+pillow==11.2.1
 loguru==0.7.3

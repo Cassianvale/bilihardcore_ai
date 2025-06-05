@@ -6,14 +6,14 @@
 统一管理用户登录、登出和账号切换
 """
 
-from PyQt6.QtCore import QObject, pyqtSignal
+from PySide6.QtCore import QObject, Signal
 from scripts.login import auth, is_login, logout
 
 
 class AuthManager(QObject):
     """认证管理器"""
     
-    login_status_changed = pyqtSignal(bool)  # 登录状态变化信号
+    login_status_changed = Signal(bool)  # 登录状态变化信号
     
     def __init__(self):
         super().__init__()

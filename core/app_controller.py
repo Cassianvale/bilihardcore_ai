@@ -6,7 +6,7 @@
 统一管理应用的核心逻辑和状态
 """
 
-from PyQt6.QtCore import QObject, pyqtSignal
+from PySide6.QtCore import QObject, Signal
 from .model_manager import ModelManager
 from .auth_manager import AuthManager
 from scripts.start_senior import QuizSession
@@ -16,10 +16,10 @@ class AppController(QObject):
     """应用程序控制器"""
     
     # 信号定义
-    login_status_changed = pyqtSignal(bool)
-    model_changed = pyqtSignal(str)
-    quiz_status_changed = pyqtSignal(bool)
-    log_message = pyqtSignal(str)
+    login_status_changed = Signal(bool)
+    model_changed = Signal(str)
+    quiz_status_changed = Signal(bool)
+    log_message = Signal(str)
     
     def __init__(self):
         super().__init__()

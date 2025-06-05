@@ -83,11 +83,11 @@ def check_dependencies():
         return False
     
     try:
-        import PyQt6
-        print(f"  ✅ PyQt6已安装")
+        import PySide6
+        print(f"  ✅ PySide6已安装")
     except ImportError:
-        print("  ❌ PyQt6未安装")
-        print("  请运行: pip install PyQt6")
+        print("  ❌ PySide6未安装")
+        print("  请运行: pip install PySide6")
         return False
     
     # 检查主要文件是否存在
@@ -120,9 +120,9 @@ def build_executable():
         "--add-data", f"{current_dir / 'gui'}/*;gui/",  # 包含gui目录
         "--add-data", f"{current_dir / 'tools'}/*;tools/",  # 包含tools目录
         "--add-data", f"{current_dir / 'config'}/*;config/",  # 包含config目录
-        "--hidden-import", "PyQt6.QtCore",
-        "--hidden-import", "PyQt6.QtGui", 
-        "--hidden-import", "PyQt6.QtWidgets",
+        "--hidden-import", "PySide6.QtCore",
+        "--hidden-import", "PySide6.QtGui", 
+        "--hidden-import", "PySide6.QtWidgets",
         str(main_script)
     ]
     

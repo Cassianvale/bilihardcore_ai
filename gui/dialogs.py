@@ -3,11 +3,11 @@
 
 import qrcode
 from io import BytesIO
-from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
+from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
                              QPushButton, QLineEdit, QTextEdit, QFormLayout, 
                              QDialogButtonBox)
-from PyQt6.QtCore import Qt, pyqtSignal, QThread
-from PyQt6.QtGui import QPixmap
+from PySide6.QtCore import Qt, Signal, QThread
+from PySide6.QtGui import QPixmap
 
 
 class QRCodeDialog(QDialog):
@@ -192,7 +192,7 @@ class CaptchaDialog(QDialog):
             
             # 在一个新线程中下载图片
             class ImageDownloader(QThread):
-                image_loaded = pyqtSignal(bytes)
+                image_loaded = Signal(bytes)
                 
                 def __init__(self, url):
                     super().__init__()

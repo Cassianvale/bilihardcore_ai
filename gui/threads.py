@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import threading
-from PyQt6.QtCore import QThread, pyqtSignal
+from PySide6.QtCore import QThread, Signal
 from scripts.start_senior import QuizSession
 from scripts.login import auth
 from tools.logger import logger
@@ -11,9 +11,9 @@ from tools.logger import logger
 class QuizThread(QThread):
     """答题线程类"""
     
-    log_signal = pyqtSignal(str)
-    finished_signal = pyqtSignal()
-    captcha_signal = pyqtSignal(str, list)
+    log_signal = Signal(str)
+    finished_signal = Signal()
+    captcha_signal = Signal(str, list)
     
     def __init__(self):
         super().__init__()
@@ -197,8 +197,8 @@ class QuizThread(QThread):
 class LoginThread(QThread):
     """登录线程类"""
     
-    login_finished = pyqtSignal(bool)
-    update_qr = pyqtSignal(str)
+    login_finished = Signal(bool)
+    update_qr = Signal(str)
     
     def __init__(self, gui_callback=None):
         super().__init__()
@@ -222,9 +222,9 @@ class LoginThread(QThread):
 class SwitchAccountThread(QThread):
     """切换账号线程类"""
     
-    finished = pyqtSignal(bool)
-    update_qr = pyqtSignal(str)
-    logout_signal = pyqtSignal(bool)
+    finished = Signal(bool)
+    update_qr = Signal(str)
+    logout_signal = Signal(bool)
     
     def run(self):
         """线程运行主逻辑"""

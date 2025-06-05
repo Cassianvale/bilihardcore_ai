@@ -3,9 +3,9 @@
 
 import sys
 import os
-from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
+from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                              QTabWidget, QMessageBox)
-from PyQt6.QtCore import Qt
+from PySide6.QtCore import Qt
 
 # 导入样式
 from .style import STYLE_SHEET

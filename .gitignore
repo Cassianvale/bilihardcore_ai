@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 .logs/
-ARCHITECTURE.md
+project_document
 
 # C extensions
 *.so
