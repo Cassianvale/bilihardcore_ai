@@ -45,7 +45,7 @@ jobs:
             package_ext: zip
           - os: macos-13
             platform: macos
-            arch: x64
+            arch: x86_64
             ext: .app
             artifact_name: macos-x64
             package_ext: zip
@@ -60,7 +60,7 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # 获取完整历史，用于版本标签
+          fetch-depth: 0
 
       - name: 🐍 Set up Python
         uses: actions/setup-python@v5
@@ -85,7 +85,8 @@ jobs:
             libxcb-xfixes0 \
             libxcb-shape0 \
             libglib2.0-0 \
-            libgl1-mesa-glx \
+            libopengl0 \
+            libgl1-mesa-dev \
             libfontconfig1 \
             libxrender1 \
             libdbus-1-3 \
@@ -93,87 +94,43 @@ jobs:
             libxcb-icccm4 \
             libxcb-image0 \
             libxcb-keysyms1 \
-            libxcb-render-util0
+            libxcb-render-util0 \
+            libegl1-mesa \
+            libxrandr2 \
+            libxss1 \
+            libxcursor1 \
+            libxcomposite1 \
+            libasound2 \
+            libxi6 \
+            libxtst6
 
       - name: 📝 Generate PyInstaller spec
-        run: python build_spec.py
+        run: |
+          # Set environment variables for spec generation
+          if [ "${{ matrix.platform }}" = "macos" ]; then
+            export PYINSTALLER_TARGET_ARCH="${{ matrix.arch }}"
+          fi
+          export CONSOLE_BUILD="${{ github.event.inputs.console_build || 'false' }}"
+          python build_spec.py
 
       - name: 🛠️ Build with PyInstaller (Windows)
         if: matrix.platform == 'windows'
         run: |
-          $console_flag = if ("${{ github.event.inputs.console_build }}" -eq "true") { "--console" } else { "--windowed" }
-          
-          pyinstaller --clean --noconfirm `
-            --name "${{ env.APP_NAME }}" `
-            $console_flag `
-            --onedir `
-            --add-data "config;config" `
-            --add-data "assets;assets" `
-            --distpath "dist" `
-            --workpath "build" `
-            --specpath "." `
-            --exclude-module tkinter `
-            --exclude-module matplotlib `
-            --exclude-module numpy `
-            --exclude-module scipy `
-            --hidden-import "PySide6.QtCore" `
-            --hidden-import "PySide6.QtGui" `
-            --hidden-import "PySide6.QtWidgets" `
-            run.py
+          # Use the generated spec file for consistent builds
+          pyinstaller --clean --noconfirm BiliHardcore_AI.spec
         shell: pwsh
 
       - name: 🛠️ Build with PyInstaller (macOS)
         if: matrix.platform == 'macos'
         run: |
-          console_flag="--windowed"
-          if [ "${{ github.event.inputs.console_build }}" = "true" ]; then
-            console_flag="--console"
-          fi
-          
-          pyinstaller --clean --noconfirm \
-            --name "${{ env.APP_NAME }}" \
-            $console_flag \
-            --onedir \
-            --add-data "config:config" \
-            --add-data "assets:assets" \
-            --distpath "dist" \
-            --workpath "build" \
-            --specpath "." \
-            --target-arch "${{ matrix.arch }}" \
-            --exclude-module tkinter \
-            --exclude-module matplotlib \
-            --exclude-module numpy \
-            --exclude-module scipy \
-            --hidden-import "PySide6.QtCore" \
-            --hidden-import "PySide6.QtGui" \
-            --hidden-import "PySide6.QtWidgets" \
-            run.py
+          # Use the generated spec file for consistent builds
+          pyinstaller --clean --noconfirm BiliHardcore_AI.spec
 
       - name: 🛠️ Build with PyInstaller (Linux)
         if: matrix.platform == 'linux'
         run: |
-          console_flag="--windowed"
-          if [ "${{ github.event.inputs.console_build }}" = "true" ]; then
-            console_flag="--console"
-          fi
-
-          pyinstaller --clean --noconfirm \
-            --name "${{ env.APP_NAME }}" \
-            $console_flag \
-            --onedir \
-            --add-data "config:config" \
-            --add-data "assets:assets" \
-            --distpath "dist" \
-            --workpath "build" \
-            --specpath "." \
-            --exclude-module tkinter \
-            --exclude-module matplotlib \
-            --exclude-module numpy \
-            --exclude-module scipy \
-            --hidden-import "PySide6.QtCore" \
-            --hidden-import "PySide6.QtGui" \
-            --hidden-import "PySide6.QtWidgets" \
-            run.py
+          # Use the generated spec file for consistent builds
+          pyinstaller --clean --noconfirm BiliHardcore_AI.spec
 
       - name: 📝 Create build info
         run: |
@@ -196,21 +153,21 @@ jobs:
         run: |
           $exe_path = "dist/${{ env.APP_NAME }}/${{ env.APP_NAME }}.exe"
           if (Test-Path $exe_path) {
-            Write-Host "✅ Executable created successfully: $exe_path"
+            Write-Host "[OK] Executable created successfully: $exe_path"
             $size = (Get-Item $exe_path).Length / 1MB
-            Write-Host "📏 Executable size: $([math]::Round($size, 2)) MB"
+            Write-Host "[INFO] Executable size: $([math]::Round($size, 2)) MB"
             
-            Write-Host "`n📁 Distribution contents:"
+            Write-Host "`n[INFO] Distribution contents:"
             Get-ChildItem "dist/${{ env.APP_NAME }}" | ForEach-Object {
               if ($_.PSIsContainer) {
-                Write-Host "  📁 $($_.Name)/"
+                Write-Host "  [DIR] $($_.Name)/"
               } else {
                 $fileSize = $_.Length / 1KB
-                Write-Host "  📄 $($_.Name) ($([math]::Round($fileSize, 1)) KB)"
+                Write-Host "  [FILE] $($_.Name) ($([math]::Round($fileSize, 1)) KB)"
               }
             }
           } else {
-            Write-Error "❌ Executable not found: $exe_path"
+            Write-Error "[ERROR] Executable not found: $exe_path"
             exit 1
           }
         shell: pwsh
@@ -226,31 +183,31 @@ jobs:
           fi
           
           if [ -f "$exe_path" ] || [ -d "$app_path" ]; then
-            echo "✅ Executable created successfully: $exe_path"
+            echo "[OK] Executable created successfully: $exe_path"
             if [ -f "$exe_path" ]; then
               size=$(du -m "$exe_path" | cut -f1)
-              echo "📏 Executable size: ${size} MB"
+              echo "[INFO] Executable size: ${size} MB"
             fi
             
             echo ""
-            echo "📁 Distribution contents:"
+            echo "[INFO] Distribution contents:"
             if [ "${{ matrix.platform }}" = "macos" ] && [ -d "$app_path" ]; then
               find "dist" -maxdepth 3 -type f | head -20 | while read file; do
                 size=$(du -k "$file" | cut -f1)
-                echo "  📄 $(basename "$file") (${size} KB)"
+                echo "  [FILE] $(basename "$file") (${size} KB)"
               done
             else
               find "dist/${{ env.APP_NAME }}" -maxdepth 1 | while read item; do
                 if [ -d "$item" ] && [ "$item" != "dist/${{ env.APP_NAME }}" ]; then
-                  echo "  📁 $(basename "$item")/"
+                  echo "  [DIR] $(basename "$item")/"
                 elif [ -f "$item" ]; then
                   size=$(du -k "$item" | cut -f1)
-                  echo "  📄 $(basename "$item") (${size} KB)"
+                  echo "  [FILE] $(basename "$item") (${size} KB)"
                 fi
               done
             fi
           else
-            echo "❌ Executable not found: $exe_path"
+            echo "[ERROR] Executable not found: $exe_path"
             exit 1
           fi
 
@@ -281,10 +238,10 @@ jobs:
           cd ..
           if [ -f "${package_name}" ]; then
             size=$(du -m "${package_name}" | cut -f1)
-            echo "✅ Package created: ${package_name} (${size} MB)"
+            echo "[OK] Package created: ${package_name} (${size} MB)"
             echo "PACKAGE_NAME=${package_name}" >> $GITHUB_ENV
           else
-            echo "❌ Failed to create package: ${package_name}"
+            echo "[ERROR] Failed to create package: ${package_name}"
             exit 1
           fi
         shell: bash
@@ -295,7 +252,7 @@ jobs:
           name: ${{ env.APP_NAME }}-${{ matrix.artifact_name }}
           path: ${{ env.PACKAGE_NAME }}
           retention-days: 30
-          compression-level: 0  # 已经压缩过了
+          compression-level: 0
 
   release:
     name: 🚀 Create Release
@@ -328,22 +285,19 @@ jobs:
             version="${{ github.ref_name }}"
           fi
           
-          # 获取最新的commit信息
           commit_count=$(git rev-list --count HEAD)
           commit_hash=$(git rev-parse --short HEAD)
           
-          # 尝试获取changelog
           changelog=""
           if [ -f "CHANGELOG.md" ]; then
-            # 提取相关版本的changelog
             changelog=$(awk "/^## \[$version\]/{flag=1; next} /^## \[/{flag=0} flag" CHANGELOG.md || echo "")
           fi
           
           if [ -z "$changelog" ]; then
-            changelog="- 支持多平台运行 (Windows/macOS/Linux)
-          - 优化了用户界面体验  
-          - 修复了已知问题
-          - 提升了稳定性和性能"
+            changelog="- Support multi-platform (Windows/macOS/Linux)
+          - Improved user interface experience  
+          - Fixed known issues
+          - Enhanced stability and performance"
           fi
           
           cat > release_notes.md << EOF
@@ -353,58 +307,58 @@ jobs:
           ![Release Date](https://img.shields.io/github/release-date/${{ github.repository }})
           ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
           
-          ## 📦 下载说明
+          ## 📦 Download Instructions
           
-          请根据你的操作系统选择对应的版本：
+          Please choose the version for your operating system:
           
-          | 操作系统 | 架构 | 下载链接 | 说明 |
+          | OS | Architecture | Download Link | Notes |
           |---------|------|----------|------|
           | 🪟 **Windows** | x64 | [\`${{ env.APP_NAME }}-${version}-windows-x64.zip\`](https://github.com/${{ github.repository }}/releases/download/${version}/${{ env.APP_NAME }}-${version}-windows-x64.zip) | Windows 10/11 |
           | 🍎 **macOS** | Apple Silicon (M1/M2) | [\`${{ env.APP_NAME }}-${version}-macos-arm64.zip\`](https://github.com/${{ github.repository }}/releases/download/${version}/${{ env.APP_NAME }}-${version}-macos-arm64.zip) | macOS 11.0+ |
           | 🍎 **macOS** | Intel | [\`${{ env.APP_NAME }}-${version}-macos-x64.zip\`](https://github.com/${{ github.repository }}/releases/download/${version}/${{ env.APP_NAME }}-${version}-macos-x64.zip) | macOS 10.15+ |
-          | 🐧 **Linux** | x64 | [\`${{ env.APP_NAME }}-${version}-linux-x64.tar.gz\`](https://github.com/${{ github.repository }}/releases/download/${version}/${{ env.APP_NAME }}-${version}-linux-x64.tar.gz) | Ubuntu 20.04+ 或其他发行版 |
+          | 🐧 **Linux** | x64 | [\`${{ env.APP_NAME }}-${version}-linux-x64.tar.gz\`](https://github.com/${{ github.repository }}/releases/download/${version}/${{ env.APP_NAME }}-${version}-linux-x64.tar.gz) | Ubuntu 20.04+ or other distributions |
           
-          ## 🚀 快速开始
+          ## 🚀 Quick Start
           
-          ### Windows 用户
-          1. 下载 \`${{ env.APP_NAME }}-${version}-windows-x64.zip\`
-          2. 解压到任意目录
-          3. 双击 \`${{ env.APP_NAME }}.exe\` 运行
+          ### Windows Users
+          1. Download \`${{ env.APP_NAME }}-${version}-windows-x64.zip\`
+          2. Extract to any directory
+          3. Double-click \`${{ env.APP_NAME }}.exe\` to run
           
-          ### macOS 用户  
-          1. 下载对应架构的 zip 文件
-          2. 解压后拖拽到应用程序文件夹
-          3. 首次运行可能需要在系统偏好设置中允许运行
+          ### macOS Users  
+          1. Download the appropriate architecture zip file
+          2. Extract and drag to Applications folder
+          3. First run may require allowing in System Preferences
           
-          ### Linux 用户
-          1. 下载 \`${{ env.APP_NAME }}-${version}-linux-x64.tar.gz\`
-          2. 解压：\`tar -xzf ${{ env.APP_NAME }}-${version}-linux-x64.tar.gz\`
-          3. 运行：\`cd ${{ env.APP_NAME }} && ./${{ env.APP_NAME }}\`
+          ### Linux Users
+          1. Download \`${{ env.APP_NAME }}-${version}-linux-x64.tar.gz\`
+          2. Extract: \`tar -xzf ${{ env.APP_NAME }}-${version}-linux-x64.tar.gz\`
+          3. Run: \`cd ${{ env.APP_NAME }} && ./${{ env.APP_NAME }}\`
           
-          ## 📋 更新日志
+          ## 📋 Changelog
           
           ${changelog}
           
-          ## ⚠️ 注意事项
+          ## ⚠️ Important Notes
           
-          - **首次运行**：请确保网络连接正常
-          - **Linux用户**：可能需要安装额外的系统依赖（见下方）
-          - **使用说明**：详见 [README.md](https://github.com/${{ github.repository }}/blob/main/README.md)
-          - **问题反馈**：请在 [Issues](https://github.com/${{ github.repository }}/issues) 中报告
+          - **First Run**: Ensure network connection is available
+          - **Linux Users**: May need to install additional system dependencies (see below)
+          - **Usage Guide**: See [README.md](https://github.com/${{ github.repository }}/blob/main/README.md)
+          - **Report Issues**: Please report at [Issues](https://github.com/${{ github.repository }}/issues)
           
-          ## 🔧 系统要求
+          ## 🔧 System Requirements
           
-          | 系统 | 最低版本 | 推荐配置 |
+          | System | Minimum Version | Recommended |
           |------|----------|----------|
           | Windows | Windows 10 (1909) | Windows 11 |
           | macOS | macOS 10.15 (Catalina) | macOS 12.0+ |
           | Linux | Ubuntu 20.04 LTS | Ubuntu 22.04+ |
           
-          ### Linux 依赖安装
+          ### Linux Dependencies
           
           **Ubuntu/Debian:**
           \`\`\`bash
-          sudo apt update && sudo apt install -y libxcb-cursor0 libxcb-xinerama0 libgl1-mesa-glx
+          sudo apt update && sudo apt install -y libxcb-cursor0 libxcb-xinerama0 libopengl0
           \`\`\`
           
           **CentOS/RHEL/Fedora:**
@@ -412,27 +366,26 @@ jobs:
           sudo dnf install -y libxcb xcb-util-cursor mesa-libGL
           \`\`\`
           
-          ## 🛠️ 构建信息
+          ## 🛠️ Build Information
           
-          - **构建时间**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
-          - **Git提交**: ${commit_hash} (${commit_count} commits)
-          - **Python版本**: ${{ env.PYTHON_VERSION }}
-          - **PyInstaller版本**: $(pip show pyinstaller | grep Version | cut -d' ' -f2 || echo "Unknown")
-          - **控制台构建**: ${{ github.event.inputs.console_build || 'false' }}
+          - **Build Time**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          - **Git Commit**: ${commit_hash} (${commit_count} commits)
+          - **Python Version**: ${{ env.PYTHON_VERSION }}
+          - **Console Build**: ${{ github.event.inputs.console_build || 'false' }}
           
-          ## 💝 支持项目
+          ## 💝 Support Project
           
-          如果这个项目对你有帮助，请考虑：
-          - ⭐ 给项目加星
-          - 🐛 报告问题和建议
-          - 🔄 分享给朋友
-          - 📝 贡献代码
+          If this project helps you, please consider:
+          - ⭐ Star the project
+          - 🐛 Report issues and suggestions
+          - 🔄 Share with friends
+          - 📝 Contribute code
           
           ---
           
-          **完整源代码**: [GitHub](https://github.com/${{ github.repository }})  
-          **使用文档**: [README.md](https://github.com/${{ github.repository }}/blob/main/README.md)  
-          **问题反馈**: [Issues](https://github.com/${{ github.repository }}/issues)
+          **Source Code**: [GitHub](https://github.com/${{ github.repository }})  
+          **Documentation**: [README.md](https://github.com/${{ github.repository }}/blob/main/README.md)  
+          **Report Issues**: [Issues](https://github.com/${{ github.repository }}/issues)
           EOF
           
           echo "version=${version}" >> $GITHUB_OUTPUT
@@ -455,12 +408,12 @@ jobs:
 
       - name: 🎉 Success notification
         run: |
-          echo "🎉 Release created successfully!"
-          echo "📦 Packages built for all platforms:"
+          echo "[SUCCESS] Release created successfully!"
+          echo "[INFO] Packages built for all platforms:"
           find artifacts -name "*.zip" -o -name "*.tar.gz" | sort | while read file; do
             size=$(du -h "$file" | cut -f1)
-            echo "  📄 $(basename "$file") ($size)"
+            echo "  [FILE] $(basename "$file") ($size)"
           done
           echo ""
-          echo "🔗 Release URL: https://github.com/${{ github.repository }}/releases/tag/${{ steps.release_notes.outputs.version }}"
-          echo "📊 View release: https://github.com/${{ github.repository }}/releases/latest" 
+          echo "[INFO] Release URL: https://github.com/${{ github.repository }}/releases/tag/${{ steps.release_notes.outputs.version }}"
+          echo "[INFO] View release: https://github.com/${{ github.repository }}/releases/latest" 

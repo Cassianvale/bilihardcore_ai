@@ -19,6 +19,19 @@ def create_spec_file():
     # 确定平台特定的设置
     system = platform.system().lower()
     
+    # 获取目标架构（来自环境变量或默认值）
+    target_arch = os.environ.get('PYINSTALLER_TARGET_ARCH', None)
+    if system == 'darwin' and target_arch:
+        # 确保macOS使用正确的架构名称
+        if target_arch == 'x64':
+            target_arch = 'x86_64'
+    elif system != 'darwin':
+        # 非macOS平台不需要target_arch
+        target_arch = None
+    
+    # 获取控制台模式设置
+    console_build = os.environ.get('CONSOLE_BUILD', 'false').lower() == 'true'
+    
     # 图标文件路径（如果存在）
     icon_path = None
     possible_icons = [
@@ -118,10 +131,10 @@ exe = EXE(
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console={"True" if "--console" in sys.argv else "False"},
+    console={str(console_build)},
     disable_windowed_traceback=False,
     argv_emulation=False,
-    target_arch=None,
+    target_arch={repr(target_arch) if target_arch else 'None'},
     codesign_identity=None,
     entitlements_file=None,{f"""
     icon='{icon_path}',""" if icon_path else ""}
@@ -158,12 +171,14 @@ coll = COLLECT(
     with open(spec_file, 'w', encoding='utf-8') as f:
         f.write(spec_content)
     
-    print(f"✅ Spec文件已生成: {spec_file}")
-    print(f"📁 当前目录: {current_dir}")
-    print(f"🐍 入口文件: {entry_point}")
-    print(f"🖼️ 图标文件: {icon_path or '未找到'}")
-    print(f"📦 数据目录: {len(datas)} 个")
-    print(f"💻 目标平台: {system}")
+    print(f"[OK] Spec file generated: {spec_file}")
+    print(f"[INFO] Current directory: {current_dir}")
+    print(f"[INFO] Entry point: {entry_point}")
+    print(f"[INFO] Icon file: {icon_path or 'Not found'}")
+    print(f"[INFO] Data directories: {len(datas)} found")
+    print(f"[INFO] Target platform: {system}")
+    print(f"[INFO] Target architecture: {target_arch or 'Default'}")
+    print(f"[INFO] Console mode: {console_build}")
     
     return str(spec_file)
 
