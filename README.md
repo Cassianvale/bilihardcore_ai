@@ -1,6 +1,6 @@
 # BiliHardcore_AI
 
-## 🚀 B站硬核会员自动答题工具
+## 🚀 B站硬核会员自动答题跨平台应用
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10+-blue.svg)](https://python.org)
@@ -18,15 +18,6 @@
 - 💾 **配置记忆**：自动保存配置信息，无需重复输入
 - 🖼️ **图形界面**：简洁友好的用户界面
 
-## 📷 预览界面
-
-<div align="center">
-  <img src="https://github.com/Cassianvale/bilihardcore_ai/raw/main/assets/app_1.png" width="80%" alt="主页界面">
-</div>
-<div align="center">
-  <img src="https://github.com/Cassianvale/bilihardcore_ai/raw/main/assets/app_2.png" width="80%" alt="配置界面">
-</div>
-
 ## 🤖 支持的AI模型
 
 | 模型 | 状态 | 特点 | 推荐度 |
@@ -37,6 +28,34 @@
 | **其他兼容API** | ✅ 支持 | 火山引擎、硅基流动等 | ⭐⭐⭐ |
 
 > ⚠️ **注意**：请避免使用类似 `DeepSeek R1` 的思考模型，思维链过长可能导致请求超时
+
+## 📦 下载使用
+
+### 🚀 跨平台预编译版本
+
+如果您不想配置Python环境，可以直接下载对应系统的预编译版本：
+
+**📥 [前往 Releases 页面下载最新版本](https://github.com/Cassianvale/bilihardcore_ai/releases/latest)**
+
+支持的平台：
+
+| 操作系统 | 架构 | 文件格式 | 系统要求 |
+|---------|------|----------|------|
+| 🪟 **Windows** | x64 | `.zip` | Windows 10/11 |
+| 🍎 **macOS** | Apple Silicon (M1/M2) | `.zip` | macOS 11.0+ |
+| 🍎 **macOS** | Intel | `.zip` | macOS 10.15+ |
+| 🐧 **Linux** | x64 | `.tar.gz` | Ubuntu 20.04+ 或其他发行版 |
+
+> 💡 **推荐**：对于普通用户，建议下载预编译版本，开箱即用，无需配置环境
+
+## 📷 预览界面
+
+<div align="center">
+  <img src="https://github.com/Cassianvale/bilihardcore_ai/raw/main/assets/app_1.png" width="80%" alt="主页界面">
+</div>
+<div align="center">
+  <img src="https://github.com/Cassianvale/bilihardcore_ai/raw/main/assets/app_2.png" width="80%" alt="配置界面">
+</div>
 
 ## 🚀 快速开始
 
