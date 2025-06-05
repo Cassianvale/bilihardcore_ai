@@ -78,6 +78,33 @@ def create_spec_file():
     safe_current_dir = str(current_dir).replace('\\', '/')
     safe_entry_point = str(entry_point).replace('\\', '/')
     
+    # 生成macOS bundle部分
+    if system == "darwin":
+        bundle_part = f'''
+app = BUNDLE(
+    coll,
+    name='BiliHardcore_AI.app',{f"""
+    icon=r'{icon_path}',""" if icon_path else ""}
+    bundle_identifier='com.github.bilihardcore.ai',
+    info_plist={{
+        'CFBundleDisplayName': 'B站硬核会员自动答题工具',
+        'CFBundleIdentifier': 'com.github.bilihardcore.ai',
+        'CFBundleVersion': '1.0.0',
+        'CFBundleShortVersionString': '1.0.0',
+        'NSHighResolutionCapable': True,
+    }},
+)'''
+    else:
+        bundle_part = '''
+# macOS Bundle (not needed on this platform)
+# app = BUNDLE(
+#     coll,
+#     name='BiliHardcore_AI.app',
+#     icon=None,
+#     bundle_identifier=None,
+#     info_plist={},
+# )'''
+
     # 生成spec文件内容
     spec_content = f'''# -*- mode: python ; coding: utf-8 -*-
 # 自动生成的PyInstaller spec文件
@@ -152,22 +179,7 @@ coll = COLLECT(
     upx=True,
     upx_exclude=[],
     name='BiliHardcore_AI',
-)
-
-# macOS特定配置
-{"app = BUNDLE(" if system == "darwin" else "# app = BUNDLE("}
-{"    coll," if system == "darwin" else "    # coll,"}
-{"    name='BiliHardcore_AI.app'," if system == "darwin" else "    # name='BiliHardcore_AI.app',"}
-{"    icon=r'" + (icon_path or '') + "'," if system == "darwin" and icon_path else "    # icon=None,"}
-{"    bundle_identifier='com.github.bilihardcore.ai'," if system == "darwin" else "    # bundle_identifier=None,"}
-{"    info_plist={{" if system == "darwin" else "    # info_plist={"}
-{"        'CFBundleDisplayName': 'B站硬核会员自动答题工具'," if system == "darwin" else "        # 'CFBundleDisplayName': 'App Name',"}
-{"        'CFBundleIdentifier': 'com.github.bilihardcore.ai'," if system == "darwin" else "        # 'CFBundleIdentifier': 'com.example.app',"}
-{"        'CFBundleVersion': '1.0.0'," if system == "darwin" else "        # 'CFBundleVersion': '1.0.0',"}
-{"        'CFBundleShortVersionString': '1.0.0'," if system == "darwin" else "        # 'CFBundleShortVersionString': '1.0.0',"}
-{"        'NSHighResolutionCapable': True," if system == "darwin" else "        # 'NSHighResolutionCapable': True,"}
-{"    }}," if system == "darwin" else "    # },"}
-{")" if system == "darwin" else "# )"}
+){bundle_part}
 '''
 
     # 写入spec文件
