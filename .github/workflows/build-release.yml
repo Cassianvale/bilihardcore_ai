@@ -19,6 +19,13 @@ on:
         type: boolean
         default: false
 
+# 必要的权限设置
+permissions:
+  contents: write    # 用于创建release和访问仓库内容
+  packages: write    # 用于发布包（如果需要）
+  actions: read      # 用于读取workflow信息
+  pull-requests: read # 用于读取PR信息
+
 env:
   PYTHON_VERSION: '3.10'
   APP_NAME: 'BiliHardcore_AI'
