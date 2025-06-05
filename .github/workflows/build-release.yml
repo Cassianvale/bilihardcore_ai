@@ -112,13 +112,13 @@ jobs:
           fi
           export CONSOLE_BUILD="${{ github.event.inputs.console_build || 'false' }}"
           python build_spec.py
+        shell: bash
 
       - name: 🛠️ Build with PyInstaller (Windows)
         if: matrix.platform == 'windows'
         run: |
           # Use the generated spec file for consistent builds
           pyinstaller --clean --noconfirm BiliHardcore_AI.spec
-        shell: pwsh
 
       - name: 🛠️ Build with PyInstaller (macOS)
         if: matrix.platform == 'macos'
@@ -151,26 +151,27 @@ jobs:
       - name: 🧪 Test executable (Windows)
         if: matrix.platform == 'windows'
         run: |
-          $exe_path = "dist/${{ env.APP_NAME }}/${{ env.APP_NAME }}.exe"
-          if (Test-Path $exe_path) {
-            Write-Host "[OK] Executable created successfully: $exe_path"
-            $size = (Get-Item $exe_path).Length / 1MB
-            Write-Host "[INFO] Executable size: $([math]::Round($size, 2)) MB"
+          exe_path="dist/${{ env.APP_NAME }}/${{ env.APP_NAME }}.exe"
+          if [ -f "$exe_path" ]; then
+            echo "[OK] Executable created successfully: $exe_path"
+            size=$(du -m "$exe_path" | cut -f1)
+            echo "[INFO] Executable size: ${size} MB"
             
-            Write-Host "`n[INFO] Distribution contents:"
-            Get-ChildItem "dist/${{ env.APP_NAME }}" | ForEach-Object {
-              if ($_.PSIsContainer) {
-                Write-Host "  [DIR] $($_.Name)/"
-              } else {
-                $fileSize = $_.Length / 1KB
-                Write-Host "  [FILE] $($_.Name) ($([math]::Round($fileSize, 1)) KB)"
-              }
-            }
-          } else {
-            Write-Error "[ERROR] Executable not found: $exe_path"
+            echo ""
+            echo "[INFO] Distribution contents:"
+            find "dist/${{ env.APP_NAME }}" -maxdepth 1 | while read item; do
+              if [ -d "$item" ] && [ "$item" != "dist/${{ env.APP_NAME }}" ]; then
+                echo "  [DIR] $(basename "$item")/"
+              elif [ -f "$item" ]; then
+                size=$(du -k "$item" | cut -f1)
+                echo "  [FILE] $(basename "$item") (${size} KB)"
+              fi
+            done
+          else
+            echo "[ERROR] Executable not found: $exe_path"
             exit 1
-          }
-        shell: pwsh
+          fi
+        shell: bash
 
       - name: 🧪 Test executable (Unix)
         if: matrix.platform != 'windows'
