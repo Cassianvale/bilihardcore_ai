@@ -207,7 +207,7 @@ class LoginThread(QThread):
     def run(self):
         """线程运行主逻辑"""
         try:
-            # 定义GUI回调函数，用于显示二维码
+            # 用于显示二维码
             def show_qrcode(url):
                 self.update_qr.emit(url)
             
@@ -236,7 +236,7 @@ class SwitchAccountThread(QThread):
             self.logout_signal.emit(logout_result)
             
             if logout_result:
-                # 定义GUI回调函数，用于显示二维码
+                # 用于显示二维码
                 def show_qrcode(url):
                     self.update_qr.emit(url)
                 

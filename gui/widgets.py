@@ -365,17 +365,8 @@ class ModelConfigWidget(QWidget):
             
             # 保存模型配置
             save_model_config(self.model_type, base_url, model_name)
-                
-            # 更新全局变量，特别是自定义模型配置
-            if self.model_type == "custom":
-                import config.config
-                config.config.CUSTOM_MODEL_CONFIG = {
-                    'base_url': base_url,
-                    'model': model_name
-                }
-                config.config.API_KEY_CUSTOM = api_key
             
-            QMessageBox.information(self, "保存成功", f"{self.model_type.upper()} 设置已保存")
+            QMessageBox.information(self, "保存成功", "模型配置已保存！")
             
         except Exception as e:
             QMessageBox.critical(

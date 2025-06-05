@@ -1,6 +1,6 @@
 import requests
 from typing import Dict, Any, Optional
-from config.config import PROMPT, API_KEY_DEEPSEEK, load_model_config
+from config.config import PROMPT, load_model_config, load_api_key
 from time import time
 
 class DeepSeekAPI:
@@ -9,7 +9,7 @@ class DeepSeekAPI:
         config = load_model_config('deepseek')
         self.base_url = config['base_url']
         self.model = config['model']
-        self.api_key = API_KEY_DEEPSEEK
+        self.api_key = load_api_key('deepseek')
 
     def ask(self, question: str, timeout: Optional[int] = 30) -> Dict[str, Any]:
         url = f"{self.base_url}/chat/completions"

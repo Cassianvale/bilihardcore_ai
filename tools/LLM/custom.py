@@ -3,6 +3,30 @@ from typing import Dict, Any, Optional
 from config.config import PROMPT, load_model_config, load_api_key
 from time import time
 
+class APIUtils:
+    @staticmethod
+    def format_api_url(base_url: str) -> str:
+        """
+        格式化 API URL
+
+        /结尾忽略v1版本，#结尾强制使用输入地址
+        
+        Args:
+            base_url: 基础 API URL
+            
+        Returns:
+            str: 格式化后的完整 API URL
+        """
+        if not base_url:
+            return ""
+            
+        if base_url.endswith('/'):
+            return f"{base_url}chat/completions"
+        elif base_url.endswith('#'):
+            return base_url.replace('#', '')
+        else:
+            return f"{base_url}/v1/chat/completions"
+
 class CustomAPI:
     def __init__(self):
         # 始终从文件重新加载最新配置，确保获取到用户在GUI中最新保存的设置
@@ -28,19 +52,21 @@ class CustomAPI:
 
     def ask(self, question: str, timeout: Optional[int] = 30) -> Dict[str, Any]:
         """根据API格式自动判断使用不同的API格式"""
-        if 'openai' in self.base_url.lower() or '/chat/completions' in self.base_url.lower():
-            return self.ask_openai_format(question, timeout)
-        elif 'dashscope' in self.base_url.lower() or 'aliyuncs' in self.base_url.lower():
+        if 'dashscope' in self.base_url.lower() or 'aliyuncs' in self.base_url.lower():
             return self.ask_dashscope_format(question, timeout)
         else:
-            return self.ask_custom_format(question, timeout)
+            # 默认使用OpenAI兼容格式
+            return self.ask_openai_format(question, timeout)
 
     def ask_openai_format(self, question: str, timeout: Optional[int] = 30) -> Dict[str, Any]:
         """使用OpenAI格式的API调用"""
-        url = f"{self.base_url}" if '/chat/completions' in self.base_url else f"{self.base_url}/chat/completions"
+        # 使用新的URL格式化逻辑
+        url = APIUtils.format_api_url(self.base_url)
         
         # 添加调试信息
-        print(f"[DEBUG] ask_openai_format 使用的URL: '{url}'")
+        print(f"[DEBUG] ask_openai_format:")
+        print(f"  - 原始base_url: '{self.base_url}'")
+        print(f"  - 格式化后URL: '{url}'")
         
         headers = {
             "Content-Type": "application/json",

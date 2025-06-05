@@ -94,14 +94,7 @@ class ModelManager(QObject):
         if base_url and model_name:
             save_model_config(model_type, base_url, model_name)
         
-        # 更新全局变量，特别是自定义模型配置
-        if model_type == "custom":
-            import config.config
-            config.config.CUSTOM_MODEL_CONFIG = {
-                'base_url': base_url,
-                'model': model_name
-            }
-            config.config.API_KEY_CUSTOM = api_key
+        # 配置保存成功，已通过save_model_config和save_api_key函数处理
     
     def validate_current_model(self):
         """验证当前模型配置"""
