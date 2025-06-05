@@ -7,3 +7,4 @@ urllib3==2.3.0
 PySide6==6.9.0
 pillow==11.2.1
 loguru==0.7.3
+pyinstaller==6.14.0
