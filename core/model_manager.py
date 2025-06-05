@@ -93,9 +93,7 @@ class ModelManager(QObject):
         # 保存模型配置
         if base_url and model_name:
             save_model_config(model_type, base_url, model_name)
-        
-        # 配置保存成功，已通过save_model_config和save_api_key函数处理
-    
+            
     def validate_current_model(self):
         """验证当前模型配置"""
         info = self.get_current_model_info()

@@ -6,7 +6,9 @@ import sys
 import shutil
 import subprocess
 import glob
+import zipfile
 from pathlib import Path
+from datetime import datetime
 
 def clean_python_cache():
     """清理Python缓存文件"""
@@ -68,6 +70,15 @@ def clean_build_dirs():
         except Exception as e:
             print(f"  删除spec文件失败 {spec_file}: {e}")
     
+    # 清理旧的ZIP文件
+    zip_files = list(current_dir.glob("BiliHardcore_AI_*.zip"))
+    for zip_file in zip_files:
+        try:
+            zip_file.unlink()
+            print(f"  删除旧的ZIP文件: {zip_file}")
+        except Exception as e:
+            print(f"  删除ZIP文件失败 {zip_file}: {e}")
+    
     print("✅ 构建目录清理完成")
 
 def check_dependencies():
@@ -91,7 +102,7 @@ def check_dependencies():
         return False
     
     # 检查主要文件是否存在
-    main_file = Path(__file__).parent / "main.py"
+    main_file = Path(__file__).parent / "run.py"
     if not main_file.exists():
         print(f"  ❌ 主文件不存在: {main_file}")
         return False
@@ -105,24 +116,15 @@ def build_executable():
     print("🔨 开始构建可执行文件...")
     
     current_dir = Path(__file__).parent
-    main_script = current_dir / "main.py"
+    main_script = current_dir / "run.py"
     
     # PyInstaller命令参数
     cmd = [
         "pyinstaller",
-        "--onefile",              # 打包成单个可执行文件
         "--windowed",             # Windows GUI应用，不显示控制台窗口
         "--noconfirm",            # 覆盖输出目录而不询问
         "--clean",                # 构建前清理缓存和临时文件
-        f"--name=bilibili-AIHardcore",      # 可执行文件名称
-        f"--distpath={current_dir / 'dist'}",  # 输出目录
-        f"--workpath={current_dir / 'build'}", # 工作目录
-        "--add-data", f"{current_dir / 'gui'}/*;gui/",  # 包含gui目录
-        "--add-data", f"{current_dir / 'tools'}/*;tools/",  # 包含tools目录
-        "--add-data", f"{current_dir / 'config'}/*;config/",  # 包含config目录
-        "--hidden-import", "PySide6.QtCore",
-        "--hidden-import", "PySide6.QtGui", 
-        "--hidden-import", "PySide6.QtWidgets",
+        f"--name=BiliHardcore_AI",      # 可执行文件名称
         str(main_script)
     ]
     
@@ -158,6 +160,44 @@ def build_executable():
         print(f"❌ 构建过程中发生错误: {e}")
         return False
 
+def create_zip_package():
+    """将构建的程序打包成zip压缩包"""
+    print("📦 开始创建ZIP压缩包...")
+    
+    current_dir = Path(__file__).parent
+    dist_dir = current_dir / "dist"
+    
+    if not dist_dir.exists():
+        print("❌ dist目录不存在，无法创建压缩包")
+        return False
+    
+    # 创建压缩包文件名（包含时间戳）
+    zip_filename = f"BiliHardcore_AI.zip"
+    zip_path = current_dir / zip_filename
+    
+    try:
+        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            # 遍历dist目录下的所有文件
+            for root, dirs, files in os.walk(dist_dir):
+                for file in files:
+                    file_path = Path(root) / file
+                    # 在压缩包中的相对路径
+                    arcname = file_path.relative_to(dist_dir)
+                    zipf.write(file_path, arcname)
+                    print(f"  添加文件: {arcname}")
+        
+        # 显示压缩包信息
+        zip_size = zip_path.stat().st_size / (1024 * 1024)  # MB
+        print(f"✅ ZIP压缩包创建成功!")
+        print(f"📦 压缩包文件: {zip_path}")
+        print(f"📏 压缩包大小: {zip_size:.1f} MB")
+        
+        return True
+        
+    except Exception as e:
+        print(f"❌ 创建ZIP压缩包失败: {e}")
+        return False
+
 def main():
     """主函数"""
     print("🚀 B站答题助手GUI打包工具")
@@ -181,25 +221,18 @@ def main():
     # 构建可执行文件
     if build_executable():
         print()
-        print("🎉 打包完成！")
-        print("📁 可执行文件位于 dist/ 目录中")
-        
-        # 可选：清理构建过程产生的临时文件
-        print()
-        response = input("是否清理构建临时文件？ (y/N): ").strip().lower()
-        if response in ['y', 'yes']:
-            # 只保留dist目录，清理build目录和spec文件
-            build_dir = Path(__file__).parent / "build"
-            if build_dir.exists():
-                shutil.rmtree(build_dir)
-                print("✅ 已清理build目录")
-            
-            spec_files = list(Path(__file__).parent.glob("*.spec"))
-            for spec_file in spec_files:
-                spec_file.unlink()
-                print(f"✅ 已删除{spec_file.name}")
+        # 创建ZIP压缩包
+        if create_zip_package():
+            print()
+            print("🎉 构建和打包完成！")
+            print("📁 可执行文件位于 dist/ 目录中")
+            print("📦 ZIP压缩包已创建，可直接分发使用")
+        else:
+            print()
+            print("⚠️  构建成功，但ZIP打包失败")
+            print("📁 可执行文件位于 dist/ 目录中")
     else:
-        print("❌ 打包失败")
+        print("❌ 构建失败")
         sys.exit(1)
 
 if __name__ == "__main__":

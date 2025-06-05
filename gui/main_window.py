@@ -16,8 +16,6 @@ from .widgets import (LogWidget, StatusWidget,
 from .dialogs import QRCodeDialog, CaptchaDialog
 from .threads import QuizThread, LoginThread, SwitchAccountThread
 
-# 导入bili-hardcore的模块
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from scripts.login import is_login
 
 

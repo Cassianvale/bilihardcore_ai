@@ -19,19 +19,27 @@ def setup_logger(name='hardcore-freedom'):
     loguru_logger.remove()
     
     # 创建日志目录
-    log_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'logs')
+    if getattr(sys, 'frozen', False):
+        # PyInstaller 打包后的环境
+        base_dir = os.path.dirname(sys.executable)
+    else:
+        # 开发环境
+        base_dir = os.path.dirname(os.path.dirname(__file__))
+    
+    log_dir = os.path.join(base_dir, 'logs')
     os.makedirs(log_dir, exist_ok=True)
     
     # 设置日志文件路径
     log_file = os.path.join(log_dir, f'{datetime.now().strftime("%Y-%m-%d")}.log')
     
-    # 添加控制台处理器
-    loguru_logger.add(
-        sys.stdout,
-        format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
-        level="INFO",
-        colorize=True
-    )
+    # 添加控制台处理器（只在有控制台时）
+    if sys.stdout is not None:
+        loguru_logger.add(
+            sys.stdout,
+            format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
+            level="INFO",
+            colorize=True
+        )
     
     # 添加文件处理器
     loguru_logger.add(
