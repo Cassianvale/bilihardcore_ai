@@ -74,6 +74,10 @@ def create_spec_file():
         "'PIL.Image'"
     ]
     
+    # 使用安全的路径字符串（避免__file__问题）
+    safe_current_dir = str(current_dir).replace('\\', '/')
+    safe_entry_point = str(entry_point).replace('\\', '/')
+    
     # 生成spec文件内容
     spec_content = f'''# -*- mode: python ; coding: utf-8 -*-
 # 自动生成的PyInstaller spec文件
@@ -83,14 +87,14 @@ def create_spec_file():
 import os
 from pathlib import Path
 
-# 获取当前目录
-current_dir = Path(__file__).parent
+# 获取当前目录 (使用绝对路径避免__file__问题)
+current_dir = Path(r"{safe_current_dir}")
 
 block_cipher = None
 
 a = Analysis(
-    ['{entry_point}'],
-    pathex=[str(current_dir)],
+    [r"{safe_entry_point}"],
+    pathex=[r"{safe_current_dir}"],
     binaries=[],
     datas=[{', '.join(datas) if datas else ''}],
     hiddenimports=[{', '.join(hidden_imports)}],
@@ -137,7 +141,7 @@ exe = EXE(
     target_arch={repr(target_arch) if target_arch else 'None'},
     codesign_identity=None,
     entitlements_file=None,{f"""
-    icon='{icon_path}',""" if icon_path else ""}
+    icon=r'{icon_path}',""" if icon_path else ""}
 )
 
 coll = COLLECT(
@@ -154,7 +158,7 @@ coll = COLLECT(
 {"app = BUNDLE(" if system == "darwin" else "# app = BUNDLE("}
 {"    coll," if system == "darwin" else "    # coll,"}
 {"    name='BiliHardcore_AI.app'," if system == "darwin" else "    # name='BiliHardcore_AI.app',"}
-{"    icon=icon_path," if system == "darwin" and icon_path else "    # icon=None,"}
+{"    icon=r'" + (icon_path or '') + "'," if system == "darwin" and icon_path else "    # icon=None,"}
 {"    bundle_identifier='com.github.bilihardcore.ai'," if system == "darwin" else "    # bundle_identifier=None,"}
 {"    info_plist={{" if system == "darwin" else "    # info_plist={"}
 {"        'CFBundleDisplayName': 'B站硬核会员自动答题工具'," if system == "darwin" else "        # 'CFBundleDisplayName': 'App Name',"}
