@@ -21,10 +21,10 @@
 ## 📷 预览界面
 
 <div align="center">
-  <img src="https://github.com/Cassianvale/bilihardcore_ai/raw/main/assets/app_1.png" width="45%" alt="主页界面">
+  <img src="https://github.com/Cassianvale/bilihardcore_ai/raw/main/assets/app_1.png" width="80%" alt="主页界面">
 </div>
 <div align="center">
-  <img src="https://github.com/Cassianvale/bilihardcore_ai/raw/main/assets/app_2.png" width="45%" alt="配置界面">
+  <img src="https://github.com/Cassianvale/bilihardcore_ai/raw/main/assets/app_2.png" width="80%" alt="配置界面">
 </div>
 
 ## 🤖 支持的AI模型
