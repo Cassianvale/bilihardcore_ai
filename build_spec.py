@@ -160,13 +160,13 @@ coll = COLLECT(
 {"    name='BiliHardcore_AI.app'," if system == "darwin" else "    # name='BiliHardcore_AI.app',"}
 {"    icon=r'" + (icon_path or '') + "'," if system == "darwin" and icon_path else "    # icon=None,"}
 {"    bundle_identifier='com.github.bilihardcore.ai'," if system == "darwin" else "    # bundle_identifier=None,"}
-{"    info_plist={{" if system == "darwin" else "    # info_plist={"}
+{"    info_plist={" if system == "darwin" else "    # info_plist={"}
 {"        'CFBundleDisplayName': 'B站硬核会员自动答题工具'," if system == "darwin" else "        # 'CFBundleDisplayName': 'App Name',"}
 {"        'CFBundleIdentifier': 'com.github.bilihardcore.ai'," if system == "darwin" else "        # 'CFBundleIdentifier': 'com.example.app',"}
 {"        'CFBundleVersion': '1.0.0'," if system == "darwin" else "        # 'CFBundleVersion': '1.0.0',"}
 {"        'CFBundleShortVersionString': '1.0.0'," if system == "darwin" else "        # 'CFBundleShortVersionString': '1.0.0',"}
 {"        'NSHighResolutionCapable': True," if system == "darwin" else "        # 'NSHighResolutionCapable': True,"}
-{"    }}," if system == "darwin" else "    # },"}
+{"    }," if system == "darwin" else "    # },"}
 {")" if system == "darwin" else "# )"}
 '''
 
